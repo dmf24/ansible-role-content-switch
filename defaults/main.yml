@@ -1,0 +1,17 @@
+---
+nginx_debian_packages:
+  - nginx
+
+nginx_centos_packages:
+  - nginx
+  - ca-certificates
+
+nginx_default_allow_networks:
+  - 10.0.0.0/8
+
+nginx_default_site: server-status
+
+certsdir: /etc/ssl/certs/web
+
+nginx_common_settings: default
+nginx_server_tokens: "off"
