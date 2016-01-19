@@ -1,0 +1,31 @@
+---
+- name: 'install sites available'
+  tags: sslproxysites
+  template: src=proxy.j2 dest=/etc/nginx/sites-available/{{ item.name }}
+            owner=root group=root mode=0644
+  with_items: sites
+  when: sites is defined
+- name: 'disable default site'
+  tags: sslproxy
+  file: path=/etc/nginx/sites-enabled/default state=absent
+- name: 'directory for upstream backends'
+  tags: sslproxy
+  file: path=/etc/nginx/upstream-backends state=directory
+        owner=root group=root
+- name: 'load upstream backend configuration'
+  tags: sslproxy
+  lineinfile: dest=/etc/nginx/nginx.conf
+              state=present
+              regexp='^.*include /etc/nginx/upstream-backends'
+              insertbefore='^.*include /etc/nginx/sites-enabled'
+              line='    include /etc/nginx/upstream-backends/*;'
+- name: 'install backends'
+  tags: sslproxy
+  template: src=upstream.j2 dest=/etc/nginx/upstream-backends/{{ item.name }}
+            owner=root group=root mode=0644
+  with_items: backends
+  when: backends is defined
+#- name: 'deploy certs'
+#  tags: sslproxy
+#  copy: dest=/etc/ssl/certs/ src=certs/
+#        owner=root group=root

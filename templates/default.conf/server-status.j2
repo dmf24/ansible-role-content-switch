@@ -1,0 +1,29 @@
+#
+# The default server
+#
+server {
+    listen       80 default_server;
+    server_name  _;
+
+    #charset koi8-r;
+
+    #access_log  logs/host.access.log  main;
+
+    # Load configuration files for the default server block.
+    include /etc/nginx/default.d/*.conf;
+
+    location / {
+{% if nginx_default_allow_networks is defined %}
+{% for allow_network in nginx_default_allow_networks %}
+        allow {{ allow_network }};
+{% endfor %}
+        deny all;
+{% endif %}
+        stub_status on;
+	access_log off;
+
+        #root   /usr/share/nginx/html;
+        #index  index.html index.htm;
+    }
+
+}

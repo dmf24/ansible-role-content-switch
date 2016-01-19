@@ -1,0 +1,26 @@
+---
+- name: install common-settings.conf
+  template: src=common-settings.conf/{{ nginx_common_settings }}.j2 dest=/etc/nginx/conf.d/common-settings.conf
+  notify: restart nginx
+- name: install content-switch.conf nginx config file
+  tags: sslproxy
+  template: src=content-switch.conf/{{ nginx_content_switch }}.j2 dest=/etc/nginx/conf.d/content-switch.conf
+            owner=root group=root mode=0644
+  when: sites is defined and nginx_content_switch is defined
+  notify: restart nginx
+- name: "install default.conf, nginx config file for a default site"
+  template: src=default.conf/{{ nginx_default_site }}.j2 dest=/etc/nginx/conf.d/default.conf
+            owner=root group=root mode=0644
+  when: nginx_default_site is defined
+  notify: restart nginx
+
+- name: 'Copy certs to server (this may take some time)'
+  tags: sslproxy
+  synchronize: dest={{ certsdir }}/ src=/srv/ssl/certs/
+  when: deploy_certs is defined
+- name: 'Set permissions on certs directories'
+  shell: 'find {{ certsdir }} -type d -exec chmod 0700 {} \;'
+  when: deploy_certs is defined
+- name: 'Set permissions on certs'
+  shell: 'find {{ certsdir }} -type f -exec chmod 0600 {} \;'
+  when: deploy_certs is defined
