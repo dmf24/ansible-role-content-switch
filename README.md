@@ -23,4 +23,6 @@ sites:
     protocol: [http|https|http_and_https]
     allow_networks:
       - <network/netmask>
+    certificate: <name of certificate> # relative to certspath
+    # see templates/content-switch.conf/generic.j2. 
 ```
